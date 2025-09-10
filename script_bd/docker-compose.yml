@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: db_pasantias
+    restart: always
+    environment:
+      # Credenciales para el usuario root
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      # Nombre de la base de datos que se creará al inicio
+      MYSQL_DATABASE: db_pasantias
+    ports:
+      # Mapeo de puertos: host_port:container_port
+      - "3306:3306"
+    volumes:
+      # Este volumen persistirá los datos de la base de datos en tu máquina
+      - db_data:/var/lib/mysql
+      # Copia tu archivo .sql al directorio de inicialización de MySQL en el contenedor
+      - ./sql:/docker-entrypoint-initdb.d
+
+volumes:
+  db_data:
