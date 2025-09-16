@@ -12,7 +12,7 @@ CREATE TABLE Empresa (
     ciudad VARCHAR(100),
     direccion TEXT,
     email_contacto VARCHAR(255),
-    modalidad VARCHAR(50)
+    modalidad VARCHAR(50) -- modificar
 );
 
 --
@@ -21,8 +21,8 @@ CREATE TABLE Empresa (
 CREATE TABLE Contacto (
     id_contacto INT AUTO_INCREMENT PRIMARY KEY,
     id_empresa INT,
-    nombre_completo VARCHAR(255) NOT NULL,
-    horario_entrevista TEXT,
+    nombre_completo VARCHAR(255) NOT NULL, -- nomre y apellido
+    horario_entrevista TEXT, -- cambiar a datetime
     FOREIGN KEY (id_empresa) REFERENCES Empresa(id_empresa) ON DELETE CASCADE
 );
 
