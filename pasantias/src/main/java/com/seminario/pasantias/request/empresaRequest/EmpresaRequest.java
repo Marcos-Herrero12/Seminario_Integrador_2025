@@ -1,4 +1,16 @@
 package com.seminario.pasantias.request.empresaRequest;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmpresaRequest {
+	private String nombre;
+	private String ciudad;
+	private String direccion;
+	private String emailContacto;
+	private String modalidad;
 }
