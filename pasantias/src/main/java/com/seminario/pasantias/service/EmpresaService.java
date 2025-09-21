@@ -1,6 +1,6 @@
 package com.seminario.pasantias.service;
 
-import com.seminario.pasantias.Empresa;
+import com.seminario.pasantias.entity.Empresa;
 import com.seminario.pasantias.persistence.EmpresaMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;

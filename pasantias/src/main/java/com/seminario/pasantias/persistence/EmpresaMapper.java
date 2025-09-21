@@ -1,6 +1,6 @@
 package com.seminario.pasantias.persistence;
 
-import com.seminario.pasantias.Empresa;
+import com.seminario.pasantias.entity.Empresa;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
 

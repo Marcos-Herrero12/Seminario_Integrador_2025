@@ -1,4 +1,4 @@
-package com.seminario.pasantias;
+package com.seminario.pasantias.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
