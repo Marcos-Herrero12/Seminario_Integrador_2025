@@ -29,13 +29,13 @@ public class EmpresaController {
 
 	@PostMapping
 	public void createEmpresa(@RequestBody EmpresaRequest request) {
-		Empresa empresa = new Empresa(null, request.getNombre(), request.getCiudad(), request.getDireccion(), request.getEmailContacto(), request.getModalidad());
+		Empresa empresa = new Empresa(null, request.getNombre(), request.getCiudad(), request.getDireccion(), request.getEmailContacto());
 		empresaService.createEmpresa(empresa);
 	}
 
 	@PutMapping("/{id}")
 	public void updateEmpresa(@PathVariable Integer id, @RequestBody EmpresaRequest request) {
-		Empresa empresa = new Empresa(id, request.getNombre(), request.getCiudad(), request.getDireccion(), request.getEmailContacto(), request.getModalidad());
+		Empresa empresa = new Empresa(id, request.getNombre(), request.getCiudad(), request.getDireccion(), request.getEmailContacto());
 		empresaService.updateEmpresa(empresa);
 	}
 

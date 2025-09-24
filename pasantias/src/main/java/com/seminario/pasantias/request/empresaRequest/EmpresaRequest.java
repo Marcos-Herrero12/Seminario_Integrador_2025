@@ -12,5 +12,4 @@ public class EmpresaRequest {
 	private String ciudad;
 	private String direccion;
 	private String emailContacto;
-	private String modalidad;
 }
