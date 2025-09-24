@@ -20,7 +20,6 @@ const EmpresaDetailPage = () => {
       <p><strong>Ciudad:</strong> {empresa.ciudad}</p>
       <p><strong>Dirección:</strong> {empresa.direccion}</p>
       <p><strong>Email:</strong> {empresa.emailContacto}</p>
-      <p><strong>Modalidad:</strong> {empresa.modalidad}</p>
     </div>
   );
 };
