@@ -1,4 +1,4 @@
-package com.seminario.pasantias.request.empresaRequest;
+package com.seminario.pasantias.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package com.seminario.pasantias.controller;
 
 import com.seminario.pasantias.entity.Empresa;
-import com.seminario.pasantias.request.empresaRequest.EmpresaRequest;
+import com.seminario.pasantias.dto.EmpresaRequest;
 import com.seminario.pasantias.service.EmpresaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
