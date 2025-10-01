@@ -12,6 +12,8 @@ CREATE TABLE Empresa (
     ciudad VARCHAR(100),
     direccion TEXT,
     email_contacto VARCHAR(255) -- modificar
+    cuit VARCHAR(100),
+    razonSocial VARCHAR(255)
 );
 
 --
@@ -28,6 +30,6 @@ CREATE TABLE Contacto (
 --
 -- Inserta datos de ejemplo
 --
-INSERT INTO Empresa (nombre, ciudad, direccion, email_contacto) VALUES
-('BIOFARMA S.A', 'Córdoba', 'Bv. de los Polacos 6446 Barrio Los Boulevares', 'rrhh@biofarmaweb.com.ar'),
-('INDACOR S.A.', 'JUAREZ CELMAN', 'Ruta 9 norte km 721 – Juárez Celman', 'aracelipenaflor@pollosindacor.com.ar');
+INSERT INTO Empresa (nombre, ciudad, direccion, email_contacto, cuit, razonSocial) VALUES
+('BIOFARMA S.A', 'Córdoba', 'Bv. de los Polacos 6446 Barrio Los Boulevares', 'rrhh@biofarmaweb.com.ar','30-76543210-3', 'BIOFARMA S.A.'),
+('INDACOR S.A.', 'JUAREZ CELMAN', 'Ruta 9 norte km 721 – Juárez Celman', 'aracelipenaflor@pollosindacor.com.ar', '33-12345678-9', 'INDACOR S.A.');
