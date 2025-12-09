@@ -186,7 +186,7 @@ export default function RegistrarCarrera() {
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className={`btn btn-primary ${isSubmitting ? "is-loading" : ""}`}
             disabled={isSubmitting || !formData.nombre.trim()}
           >
             {isSubmitting ? "Registrando..." : "Registrar Carrera"}

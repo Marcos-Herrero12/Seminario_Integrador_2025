@@ -1,4 +1,3 @@
-
 /* ===== Layout general ===== */
 .login-hero{
   background:#EDF5FF;
@@ -7,7 +6,7 @@
 
 .login-grid{
   display:grid;
-  grid-template-columns: 1.05fr 0.95fr; /* más peso al form */
+  grid-template-columns: 1.05fr 0.95fr; /* mas peso al form */
   align-items:center;
   gap: 24px;
   min-height: min(86vh, 820px);
@@ -37,7 +36,7 @@
   font-size: 28px; color: #2264B2; font-weight:700;
 }
 
-/* Botón Google */
+/* Boton Google */
 .btn-google{
   width:100%;
   height:50px;
@@ -70,7 +69,7 @@
 .field input{
   width:100%; height:52px; padding:0 14px;
   border:1px solid #e5e7eb; border-radius:12px; outline:none;
-  background:#f3f4f6; /* gris claro como el diseño */
+  background:#f3f4f6; /* gris claro como el diseno */
   font-size:16px;
   transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
 }
@@ -152,4 +151,42 @@
   font-size: 14px;
   font-weight: 500;
   text-align: center;
+}
+
+@media (max-width: 960px){
+  .login-grid{
+    grid-template-columns:1fr;
+    min-height:auto;
+    gap:18px;
+  }
+  .login-card{
+    max-width:100%;
+  }
+  .login-art{
+    min-height:280px;
+    order:-1;
+    border-radius:14px;
+  }
+}
+
+@media (max-width: 640px){
+  .login-hero{
+    padding: 18px 0 24px;
+  }
+  .login-card{
+    padding:18px;
+  }
+  .login-title{
+    font-size:24px;
+  }
+  .login-art{
+    min-height:220px;
+    padding:16px;
+    border-radius:12px;
+    box-shadow: none;
+    background-position:center;
+  }
+  .login-art h2{
+    font-size:22px;
+  }
 }

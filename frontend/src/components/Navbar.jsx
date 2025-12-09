@@ -10,6 +10,8 @@ function getStoredItem(key) {
 
 export default function Navbar(){
   const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
 
   const readUserFromStorage = useCallback(() => {
     const token = getStoredItem("authToken");
@@ -17,11 +19,19 @@ export default function Navbar(){
 
     if (!token || !userInfoRaw) {
       setUser(null);
+      setProfilePhoto(null);
       return;
     }
 
     try {
-      setUser(JSON.parse(userInfoRaw));
+      const parsed = JSON.parse(userInfoRaw);
+      setUser(parsed);
+      if (parsed?.email) {
+        const storedPhoto = localStorage.getItem(`profilePhoto:${parsed.email}`);
+        setProfilePhoto(storedPhoto || null);
+      } else {
+        setProfilePhoto(null);
+      }
     } catch (e) {
       console.error("Error parsing user info:", e);
       localStorage.removeItem("authToken");
@@ -29,6 +39,7 @@ export default function Navbar(){
       sessionStorage.removeItem("authToken");
       sessionStorage.removeItem("userInfo");
       setUser(null);
+      setProfilePhoto(null);
     }
   }, []);
 
@@ -36,13 +47,18 @@ export default function Navbar(){
     readUserFromStorage();
 
     const handleAuthChange = () => readUserFromStorage();
+    const handleResize = () => {
+      if (window.innerWidth > 960) setMenuOpen(false);
+    };
 
     window.addEventListener("storage", handleAuthChange);
     window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("storage", handleAuthChange);
       window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("resize", handleResize);
     };
   }, [readUserFromStorage]);
 
@@ -53,36 +69,58 @@ export default function Navbar(){
           <img src="/logo-utn.png" alt="UTN Conecta" />
           <span>UTN CONECTA</span>
         </Link>
-        <nav className="links">
-          <NavLink to="/" end>Inicio</NavLink>
-          <NavLink to="/pasantias">Pasantias</NavLink>
-          <NavLink to={user?.rol === "ADMINISTRADOR" ? "/empresa-list" : "/empresas"}>
-            Empresas
-          </NavLink>
-          {user?.rol === "ADMINISTRADOR" && (
-            <NavLink to="/carreras">Carreras</NavLink>
-          )}
-        </nav>
-        <div className="actions">
-          {user ? (
-            <div className="user-menu">
-              <span className="user-greeting">
-                Hola, <strong>{user.username}</strong> ({user.rol})
-              </span>
-              <Link
-                to="/perfil"
-                className="profile-link"
-                aria-label="Ver perfil"
-              >
-                <img src="/icons/profile.svg" alt="" aria-hidden="true" />
-              </Link>
-            </div>
-          ) : (
-            <>
-              <Link to="/registrarse" className="btn-register">Registrarse</Link>
-              <Link to="/login" className="btn login">Iniciar Sesion</Link>
-            </>
-          )}
+        <button
+          className={`burger ${menuOpen ? "open" : ""}`}
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label="Abrir menú de navegación"
+          aria-expanded={menuOpen}
+          aria-controls="nav-menu"
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div id="nav-menu" className={`nav-menu ${menuOpen ? "open" : ""}`}>
+          <nav className="links">
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}>Inicio</NavLink>
+            <NavLink to="/pasantias" onClick={() => setMenuOpen(false)}>Pasantias</NavLink>
+            <NavLink
+              to={user?.rol === "ADMINISTRADOR" ? "/empresa-list" : "/empresas"}
+              onClick={() => setMenuOpen(false)}
+            >
+              Empresas
+            </NavLink>
+            {user?.rol === "ADMINISTRADOR" && (
+              <NavLink to="/carreras" onClick={() => setMenuOpen(false)}>Carreras</NavLink>
+            )}
+          </nav>
+          <div className="actions">
+            {user ? (
+              <div className="user-menu">
+                <span className="user-greeting">
+                Hola, <strong>{user.username}</strong>
+                </span>
+                <Link
+                  to="/perfil"
+                  className="profile-link"
+                  aria-label="Ver perfil"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {profilePhoto ? (
+                    <img src={profilePhoto} alt="" aria-hidden="true" className="profile-photo" />
+                  ) : (
+                    <img src="/icons/profile.svg" alt="" aria-hidden="true" />
+                  )}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link to="/registrarse" className="btn-register" onClick={() => setMenuOpen(false)}>Registrarse</Link>
+                <Link to="/login" className="btn login" onClick={() => setMenuOpen(false)}>Iniciar Sesion</Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>

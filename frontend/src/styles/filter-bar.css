@@ -54,6 +54,24 @@
   align-items: center;
   justify-content: center;
 }
+.filter-bar-actions .btn.clean-btn{
+  background: var(--utn-orange);
+  border-color: var(--utn-orange);
+  color:#fff;
+}
+.filter-bar-actions .btn.clean-btn:hover:not(.is-disabled){
+  background:#e65a00;
+  border-color:#e65a00;
+  box-shadow:0 6px 16px rgba(230,90,0,.35);
+}
+.filter-bar-actions .btn.is-disabled{
+  opacity:1;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+  background: var(--utn-orange);
+  border-color: var(--utn-orange);
+}
 
 @media (max-width: 768px){
   .filter-bar-inner{

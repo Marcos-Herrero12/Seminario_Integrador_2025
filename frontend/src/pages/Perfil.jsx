@@ -11,6 +11,7 @@ function getStoredItem(key) {
 export default function Perfil() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [photo, setPhoto] = useState(null);
   const navigate = useNavigate();
 
   const loadUser = useCallback(() => {
@@ -33,6 +34,40 @@ export default function Perfil() {
       setLoading(false);
     }
   }, []);
+
+  // Cargar foto guardada en localStorage segun el email
+  useEffect(() => {
+    if (user?.email) {
+      const stored = localStorage.getItem(`profilePhoto:${user.email}`);
+      if (stored) setPhoto(stored);
+    }
+  }, [user]);
+
+  const handlePhotoChange = (ev) => {
+    const file = ev.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setPhoto(dataUrl);
+      if (user?.email) {
+        localStorage.setItem(`profilePhoto:${user.email}`, dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerPhoto = () => {
+    const input = document.getElementById("profile-photo-input");
+    if (input) input.click();
+  };
+
+  const handleRemovePhoto = () => {
+    setPhoto(null);
+    if (user?.email) {
+      localStorage.removeItem(`profilePhoto:${user.email}`);
+    }
+  };
 
   useEffect(() => {
     loadUser();
@@ -89,7 +124,11 @@ export default function Perfil() {
       <div className="perfil-card">
         <div className="perfil-header">
           <div className="perfil-avatar" aria-hidden="true">
-            {(user.username || "?").substring(0, 1).toUpperCase()}
+            {photo ? (
+              <img src={photo} alt="" />
+            ) : (
+              (user.username || "?").substring(0, 1).toUpperCase()
+            )}
           </div>
           <div>
             <h1>{user.username}</h1>
@@ -113,6 +152,25 @@ export default function Perfil() {
         </div>
 
         <div className="perfil-actions">
+          {(user.rol === "ESTUDIANTE" || user.rol === "EMPRESA") && (
+            <>
+              <input
+                id="profile-photo-input"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handlePhotoChange}
+              />
+              <button className="btn btn-outline" onClick={triggerPhoto}>
+                Subir foto
+              </button>
+              {photo && (
+                <button className="btn btn-secondary" onClick={handleRemovePhoto}>
+                  Quitar foto
+                </button>
+              )}
+            </>
+          )}
           {user.rol === "ESTUDIANTE" && (
             <>
               <button 

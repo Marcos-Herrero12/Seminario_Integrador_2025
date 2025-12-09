@@ -312,7 +312,7 @@ export default function ModificarPerfil() {
         <div className="modificar-perfil-header">
           <h1>Modificar perfil</h1>
           <button 
-            className="btn btn-secondary" 
+            className="back-link" 
             onClick={() => navigate("/perfil")}
           >
             ← Volver al perfil

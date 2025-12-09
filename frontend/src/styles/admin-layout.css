@@ -21,6 +21,13 @@
   overflow-y: auto;
 }
 
+.admin-sidebar__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
 .admin-sidebar__brand {
   display: flex;
   align-items: center;
@@ -45,6 +52,38 @@
   color: rgba(248, 250, 252, 0.7);
 }
 
+.admin-sidebar__burger{
+  display:none;
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(248,250,252,.35);
+  background:rgba(255,255,255,.1);
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  flex-direction:column;
+  padding:10px;
+  cursor:pointer;
+}
+.admin-sidebar__burger span{
+  display:block;
+  width:100%;
+  height:3px;
+  background:#fff;
+  border-radius:999px;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.admin-sidebar__burger.is-open span:nth-child(1){ transform: translateY(6px) rotate(45deg); }
+.admin-sidebar__burger.is-open span:nth-child(2){ opacity:0; }
+.admin-sidebar__burger.is-open span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
+
+.admin-sidebar__panel{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+}
+
 .admin-sidebar__nav {
   display: flex;
   flex-direction: column;
@@ -53,6 +92,9 @@
 
 .admin-sidebar__home {
   margin: 1.5rem 0 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .admin-sidebar__account {
@@ -109,34 +151,52 @@
 
   .admin-sidebar {
     width: 100%;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    flex-wrap: wrap;
+    text-align: center;
     gap: 1rem;
     position: static;
     height: auto;
     overflow: visible;
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .admin-sidebar__burger{
+    display:inline-flex;
+  }
+
+  .admin-sidebar__panel{
+    display:none;
+    width:100%;
+  }
+  .admin-sidebar__panel.is-open{
+    display:flex;
   }
 
   .admin-sidebar__nav {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    width: 100%;
+    gap: 0.35rem;
+  }
+
+  .admin-sidebar__home{
+    justify-content:center;
   }
 
   .admin-sidebar__nav-label {
     width: 100%;
+    text-align: center;
   }
 
   .admin-sidebar__link {
-    flex: 1 1 45%;
+    width: 100%;
+    max-width: 320px;
     text-align: center;
   }
 
   .admin-main {
     height: auto;
     overflow: visible;
+    padding: 1.5rem 1rem 2rem;
   }
 }

@@ -21,6 +21,7 @@ export default function PasantiaDetalle() {
   const [postulaciones, setPostulaciones] = useState([]);
   const [loadingPostulaciones, setLoadingPostulaciones] = useState(false);
   const [user, setUser] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -49,9 +50,11 @@ export default function PasantiaDetalle() {
         console.error("Error parsing user info:", e);
         setUser(null);
       }
+      setUserLoaded(true);
     };
 
     readUserFromStorage();
+    setUserLoaded(true);
     const handleAuthChange = () => readUserFromStorage();
     window.addEventListener("storage", handleAuthChange);
     window.addEventListener("auth-change", handleAuthChange);
@@ -181,6 +184,8 @@ export default function PasantiaDetalle() {
 
     loadPostulaciones();
   }, [id, pasantia]);
+
+  const canViewPostulaciones = userLoaded && user?.rol !== "ESTUDIANTE";
 
   const handleConfirmarPostulacion = useCallback(async () => {
     if (!user || user.rol !== "ESTUDIANTE") {
@@ -387,11 +392,11 @@ export default function PasantiaDetalle() {
       <div className="container">
         <header style={{ margin: "28px 0 2rem" }}>
           <button 
-            className="btn btn-ghost" 
+            className="back-link" 
             onClick={() => navigate("/pasantias")}
             style={{ marginBottom: "1rem" }}
           >
-            ← Volver
+            <span aria-hidden="true">←</span> Volver
           </button>
           <h1>{pasantia.titulo}</h1>
           <p className="muted">
@@ -399,7 +404,7 @@ export default function PasantiaDetalle() {
           </p>
         </header>
 
-        <div style={{ display: "grid", gap: "2rem", gridTemplateColumns: "2fr 1fr" }}>
+        <div className="pasantia-detail-layout">
           <article className="job-card" style={{ padding: "2rem" }}>
             <h2>Descripción</h2>
             {pasantia.puestoACubrir && (
@@ -451,7 +456,7 @@ export default function PasantiaDetalle() {
               )}
 
             {/* Button to view all postulaciones - shows if there are ANY postulaciones */}
-            {postulaciones.length > 0 && (
+            {postulaciones.length > 0 && canViewPostulaciones && (
               <div className="job-card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
                 <h3 style={{ fontSize: "1.1em", marginBottom: "1rem" }}>Postulaciones</h3>
                 <p style={{ marginBottom: "1rem", fontSize: "0.9em" }}>
@@ -470,12 +475,14 @@ export default function PasantiaDetalle() {
             <div className="job-card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
               <h3 style={{ fontSize: "1.1em", marginBottom: "1rem" }}>Información</h3>
               <dl style={{ display: "grid", gap: "0.75rem" }}>
-                <div>
-                  <dt style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>Estado</dt>
-                  <dd>
-                    <span className="badge">{pasantia.estado}</span>
-                  </dd>
-                </div>
+                {user?.rol === "ADMINISTRADOR" && (
+                  <div>
+                    <dt style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>Estado</dt>
+                    <dd>
+                      <span className="badge">{pasantia.estado}</span>
+                    </dd>
+                  </div>
+                )}
                 {pasantia.cantidadDePasantes && (
                   <div>
                     <dt style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>Cantidad de pasantes</dt>

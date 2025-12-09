@@ -54,6 +54,9 @@
   background: #fff;
   color: var(--text);
   transition: all 0.2s ease;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .form-input::placeholder {
@@ -83,30 +86,34 @@
   margin: 0;
 }
 
-/* Select específico */
+/* Select especÃƒÂ­fico */
 select.form-input {
   cursor: pointer;
-  padding-right: 40px;
+  padding: 12px 40px 12px 14px;
+  min-height: 48px;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 12px center;
   background-repeat: no-repeat;
-  background-size: 16px;
+  background-size: 14px;
   appearance: none;
+  width: 100%;
+  min-width: 0;
+  line-height: 1.3;
 }
 
 /* Acciones del formulario */
-.form-actions {
+.registrar-usuario-page .form-actions {
   margin-top: 12px;
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: center;
-  align-items: center !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  width: 100%;
 }
 
-.form-actions .btn {
+.registrar-usuario-page .form-actions .btn {
   margin: 0 !important;
+  width: 100%;
 }
 
 /* Botones (reutilizando estilos de empresas) */
@@ -143,14 +150,13 @@ select.form-input {
   gap: 8px;
 }
 
-/* Estilos para botones de acción */
+/* Estilos para botones de acciÃƒÂ³n */
 .action-buttons {
-  display: flex !important;
-  flex-direction: row !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
   gap: 8px;
   align-items: center !important;
   justify-content: center !important;
-  flex-wrap: nowrap !important;
 }
 
 .btn-icon-only {
@@ -206,7 +212,7 @@ select.form-input {
   cursor: not-allowed;
 }
 
-/* Modal de confirmación */
+/* Modal de confirmaciÃƒÂ³n */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -422,6 +428,12 @@ select.form-input {
   text-align: left;
   border-bottom: 1px solid var(--border);
 }
+.table th:last-child,
+.table td:last-child{
+  width: 120px;
+  min-width: 120px;
+  text-align: center;
+}
 
 .table th {
   background: var(--gray-50);
@@ -504,14 +516,17 @@ select.form-input {
     padding: 20px;
   }
 
-  
   .search-form {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
   }
   
   .search-form .form-input {
     min-width: auto;
+  }
+  .search-form .btn{
+    width:100%;
   }
   
   .table {
@@ -531,5 +546,60 @@ select.form-input {
     flex: 1;
     min-width: 120px;
     text-align: center;
+  }
+
+  .registrar-usuario-page .form-actions{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Overrides responsive acciones/tabla */
+.action-buttons{
+  display:grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap:8px;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100%;
+}
+.table th:last-child,
+.table td:last-child{
+  width:120px;
+  min-width:120px;
+  text-align:center;
+}
+.btn-icon-only{
+  width:42px;
+  height:42px;
+  min-width:42px;
+}
+.btn-icon-only img{
+  width:22px;
+  height:22px;
+}
+@media (max-width: 768px){
+  .table thead{ display:none; }
+  .table tr{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:6px;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .table td{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+  }
+  .table td:last-child{
+    width:100%;
+    min-width:0;
+    justify-content:flex-start;
+  }
+  .action-buttons{
+    grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+    justify-items:flex-start;
   }
 }

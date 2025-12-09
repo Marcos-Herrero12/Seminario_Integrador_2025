@@ -37,6 +37,9 @@
   max-width: 480px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--utn-blue);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .form-group {
@@ -98,10 +101,8 @@
   margin-top: 0.25rem;
 }
 
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+.registrar-carrera-form .btn{
+  flex:0 0 auto;
 }
 
 .form-footer {
@@ -215,11 +216,11 @@
 }
 
 /* Loading States */
-.btn:disabled {
+.btn.is-loading:disabled {
   position: relative;
 }
 
-.btn:disabled::after {
+.btn.is-loading:disabled::after {
   content: '';
   position: absolute;
   width: 16px;
@@ -236,6 +237,30 @@
   100% { transform: rotate(360deg); }
 }
 
+/* ---- Layout botones formulario ---- */
+.registrar-carrera-form .form-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:stretch;
+  width:100%;
+  margin-top:1rem;
+}
+.registrar-carrera-form .form-actions .btn{
+  flex:1 1 0;
+  min-width:0;
+  width:100%;
+}
+
+@media (max-width: 900px){
+  .registrar-carrera-form .form-actions{
+    flex-direction:column;
+  }
+  .registrar-carrera-form .form-actions .btn{
+    width:100%;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .registrar-carrera-container {
@@ -250,14 +275,6 @@
 
   .registrar-carrera-form {
     padding: 1.5rem;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    flex: none;
   }
 }
 
@@ -329,3 +346,4 @@
     transform: none;
   }
 }
+

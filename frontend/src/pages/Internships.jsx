@@ -381,9 +381,12 @@ export default function Internships() {
           actions={
             <button
               type="button"
-              className="btn btn-outline sm"
-              onClick={handleResetFilters}
-              disabled={!hasActiveFilters}
+              className={`btn btn-outline sm clean-btn ${!hasActiveFilters ? "is-disabled" : ""}`}
+              onClick={() => {
+                if (!hasActiveFilters) return;
+                handleResetFilters();
+              }}
+              aria-disabled={!hasActiveFilters}
             >
               Limpiar
             </button>
@@ -468,6 +471,11 @@ export default function Internships() {
                     <footer>
                       <span className="time">{j.publicada}</span>
                       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        {j.aceptaPostulaciones && (!user || user?.rol === "ESTUDIANTE") && !appliedIds.has(j.id) && (
+                          <a className="btn btn-postular" href={`/pasantias/${j.id}`}>
+                            Postular
+                          </a>
+                        )}
                         <button 
                           className="btn btn-ghost" 
                           onClick={() => handleVerDetalles(j.id)}
@@ -475,11 +483,6 @@ export default function Internships() {
                         >
                           Ver detalles
                         </button>
-                        {j.aceptaPostulaciones && (!user || user?.rol === "ESTUDIANTE") && !appliedIds.has(j.id) && (
-                          <a className="btn btn-ghost" href={`/pasantias/${j.id}`}>
-                            Postular
-                          </a>
-                        )}
                         {isAdmin && j.estado === "PENDIENTE_DE_APROBACION" && (
                           <button
                             className="btn btn-approve"
