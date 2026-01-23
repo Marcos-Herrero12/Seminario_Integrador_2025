@@ -18,9 +18,28 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@org.springframework.lang.NonNull CorsRegistry registry) {
+                // Get allowed origins from environment variable or use defaults for development
+                String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+                String[] allowedOrigins;
+                
+                if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+                    // Split by comma and trim whitespace
+                    allowedOrigins = allowedOriginsEnv.split(",");
+                    for (int i = 0; i < allowedOrigins.length; i++) {
+                        allowedOrigins[i] = allowedOrigins[i].trim();
+                    }
+                } else {
+                    // Default to localhost for development
+                    allowedOrigins = new String[]{
+                        "http://localhost:3000", 
+                        "http://localhost.localdomain:3000",
+                        "http://localhost:5173", 
+                        "http://localhost.localdomain:5173"
+                    };
+                }
+                
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "http://localhost.localdomain:3000",
-                        "http://localhost:5173", "http://localhost.localdomain:5173")
+                        .allowedOrigins(allowedOrigins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(true)

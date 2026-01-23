@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/perfil.css";
 
+const API = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/+$/, "");
+
 function getStoredItem(key) {
   const persisted = localStorage.getItem(key);
   if (persisted !== null) return persisted;
@@ -77,7 +79,7 @@ export default function Perfil() {
     try {
       const token = getStoredItem("authToken");
       if (token) {
-        await fetch("http://localhost:8080/auth/cerrarSesion", {
+        await fetch(`${API}/auth/cerrarSesion`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

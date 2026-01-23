@@ -1,0 +1,50 @@
+services:
+  # Backend Service (Spring Boot)
+  - type: web
+    name: pasantias-backend
+    env: java
+    buildCommand: cd pasantias && mvn clean package -DskipTests
+    startCommand: cd pasantias && java -jar target/pasantias-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 3600
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_SMTP_AUTH
+        value: true
+      - key: MAIL_SMTP_STARTTLS
+        value: true
+      - key: VERIFICATION_BASE_URL
+        sync: false
+      - key: VERIFICATION_EXPIRATION_HOURS
+        value: 24
+    healthCheckPath: /swagger-ui/index.html
+
+  # Frontend Service (React + Vite)
+  - type: web
+    name: pasantias-frontend
+    env: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+
+databases:
+  # MySQL Database
+  - name: pasantias-db
+    databaseName: db_pasantias
+    user: pasantias_user
+    plan: free
