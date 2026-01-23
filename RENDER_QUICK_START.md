@@ -25,9 +25,10 @@
 2. Connect repository → Select `Seminario_Integrador_2025`
 3. Configure:
    - **Name**: `pasantias-backend`
-   - **Environment**: `Java`
-   - **Build Command**: `cd pasantias && mvn clean package -DskipTests`
-   - **Start Command**: `cd pasantias && java -jar target/pasantias-0.0.1-SNAPSHOT.jar`
+   - **Environment**: `Docker` ⚠️ **Select Docker**
+   - **Root Directory**: `pasantias`
+   - **Dockerfile Path**: `Dockerfile` (or leave default if it auto-detects)
+   - **Docker Context**: `pasantias`
 4. **Environment Variables** (copy-paste and replace placeholders):
    ```bash
    SPRING_DATASOURCE_URL=jdbc:mysql://<HOST>:<PORT>/db_pasantias?useSSL=true&serverTimezone=America/Argentina/Buenos_Aires&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true&connectionCollation=utf8mb4_unicode_ci

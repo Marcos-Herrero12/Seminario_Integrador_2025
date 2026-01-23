@@ -12,7 +12,9 @@ This guide will help you deploy the entire project (Backend, Frontend, and Datab
 
 1. Log in to [Render Dashboard](https://dashboard.render.com)
 2. Click **"New +"** → **"PostgreSQL"** (or MySQL if available)
-3. **Note**: Render primarily supports PostgreSQL. If MySQL is not available, see the PostgreSQL migration section below.
+3. **Note**: Render primarily supports PostgreSQL. If MySQL is not available, you have two options:
+   - Use an external MySQL service (like [PlanetScale](https://planetscale.com), [Aiven](https://aiven.io), or [Railway](https://railway.app))
+   - Migrate to PostgreSQL (see migration notes below)
 4. Configure:
    - **Name**: `pasantias-db`
    - **Database**: `db_pasantias`
@@ -34,22 +36,22 @@ This guide will help you deploy the entire project (Backend, Frontend, and Datab
 2. Connect your repository:
    - Select your Git provider (GitHub/GitLab/Bitbucket)
    - Choose the repository: `Seminario_Integrador_2025`
-   - Select branch: `develop` (or `main`)
+   - Select branch: `develop` (or `feature/render-deployment` if you want to use the new branch)
 3. Configure the service:
    - **Name**: `pasantias-backend`
-   - **Environment**: `Java`
+   - **Environment**: `Docker` ⚠️ **Select Docker, not Java**
    - **Region**: Choose closest to your users
-   - **Branch**: `develop`
-   - **Root Directory**: Leave empty (or `pasantias` if deploying from subdirectory)
-   - **Build Command**: 
-     ```bash
-     cd pasantias && mvn clean package -DskipTests
-     ```
-   - **Start Command**: 
-     ```bash
-     cd pasantias && java -jar target/pasantias-0.0.1-SNAPSHOT.jar
-     ```
+   - **Branch**: `develop` (or your deployment branch)
+   - **Root Directory**: `pasantias` (important: this tells Render where the Dockerfile is)
+   - **Dockerfile Path**: `Dockerfile` (relative to root directory, so it will be `pasantias/Dockerfile`)
+   - **Docker Context**: `pasantias` (same as root directory)
    - **Instance Type**: Free (or upgrade for production)
+   
+   **Important Docker Configuration**:
+   - The Dockerfile is located at `pasantias/Dockerfile`
+   - Render will automatically build the Docker image
+   - The app will listen on the port provided by Render's `PORT` environment variable (configured in `application.properties`)
+   - No need to set `PORT` manually - Spring Boot will use it automatically
 
 4. **Environment Variables** - Add these:
    ```
@@ -179,8 +181,11 @@ If you prefer to use the `render.yaml` file:
 ### Backend won't start
 - Check logs: **Service** → **Logs**
 - Verify database connection string
-- Ensure Java 21 is supported (Render should auto-detect)
-- Check if port 8080 is correct (Render uses `$PORT` env var)
+- Ensure Docker build completed successfully (check build logs)
+- Verify **Root Directory** is set to `pasantias`
+- Verify **Dockerfile Path** is `Dockerfile` (relative to root directory)
+- The app automatically uses Render's `PORT` env var via `server.port=${PORT:8080}` in `application.properties`
+- Check Docker build logs for Maven build errors
 
 ### Database connection errors
 - Verify database credentials

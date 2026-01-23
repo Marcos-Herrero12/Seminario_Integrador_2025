@@ -17,8 +17,9 @@ WORKDIR /app
 # Copy jar from build stage
 COPY --from=build /app/target/pasantias-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port
+# Expose port (Render will set PORT env var)
 EXPOSE 8080
 
-# Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run application with PORT support for Render
+# Render provides PORT env var, Spring Boot will use it via server.port
+ENTRYPOINT ["sh", "-c", "java -jar -Dserver.port=${PORT:-8080} app.jar"]

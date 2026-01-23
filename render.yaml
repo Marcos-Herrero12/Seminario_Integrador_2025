@@ -1,10 +1,10 @@
 services:
-  # Backend Service (Spring Boot)
+  # Backend Service (Spring Boot) - Using Docker
   - type: web
     name: pasantias-backend
-    env: java
-    buildCommand: cd pasantias && mvn clean package -DskipTests
-    startCommand: cd pasantias && java -jar target/pasantias-0.0.1-SNAPSHOT.jar
+    env: docker
+    dockerfilePath: pasantias/Dockerfile
+    dockerContext: pasantias
     envVars:
       - key: SPRING_DATASOURCE_URL
         sync: false
