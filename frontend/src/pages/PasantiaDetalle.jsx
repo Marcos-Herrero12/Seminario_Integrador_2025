@@ -10,6 +10,14 @@ function getStoredItem(key) {
   return sessionStorage.getItem(key);
 }
 
+async function safeJson(res) {
+  try {
+    return await res.json();
+  } catch (err) {
+    return null;
+  }
+}
+
 export default function PasantiaDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,12 +33,60 @@ export default function PasantiaDetalle() {
   const [registering, setRegistering] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [studentId, setStudentId] = useState(null);
+  const [cvList, setCvList] = useState([]);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [selectedCv, setSelectedCv] = useState("");
 
   const pushToast = useCallback((message, type = "success") => {
     const toastId = crypto.randomUUID();
     setToasts(curr => [...curr, { id: toastId, message, type }]);
     setTimeout(() => setToasts(curr => curr.filter(t => t.id !== toastId)), 4500);
   }, []);
+
+  // cargar id estudiante y CVs cuando hay user estudiante
+  useEffect(() => {
+    async function loadStudentData() {
+      if (!user || user.rol !== "ESTUDIANTE") {
+        setStudentId(null);
+        setCvList([]);
+        return;
+      }
+      const token = getStoredItem("authToken");
+      if (!token) return;
+      try {
+        setCvLoading(true);
+        const resEst = await fetch(`${API}/estudiantes/perfil?email=${encodeURIComponent(user.email)}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json;charset=UTF-8" }
+        });
+        const dataEst = await safeJson(resEst);
+        const idEst = dataEst?.idEstudiante || dataEst?.id;
+        if (idEst) setStudentId(idEst);
+        const resCv = await fetch(`${API}/cvs/getCV?idEstudiante=${idEst}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json;charset=UTF-8" }
+        });
+        if (resCv.ok) {
+          const cvs = await safeJson(resCv);
+          const list = Array.isArray(cvs) ? cvs : [];
+          setCvList(list);
+          if (list.length > 0) setSelectedCv(String(list[0].idCv));
+        } else {
+          setCvList([]);
+        }
+      } catch (e) {
+        setCvList([]);
+      } finally {
+        setCvLoading(false);
+      }
+    }
+    if (userLoaded) loadStudentData();
+  }, [user, userLoaded]);
+
+  useEffect(() => {
+    if (cvList.length > 0 && !selectedCv) {
+      setSelectedCv(String(cvList[0].idCv));
+    }
+  }, [cvList, selectedCv]);
 
   const closeToast = (id) => setToasts(curr => curr.filter(t => t.id !== id));
 
@@ -187,6 +243,7 @@ export default function PasantiaDetalle() {
 
   const canViewPostulaciones = userLoaded && user?.rol !== "ESTUDIANTE";
 
+  
   const handleConfirmarPostulacion = useCallback(async () => {
     if (!user || user.rol !== "ESTUDIANTE") {
       pushToast("Debes estar autenticado como estudiante para postular", "error");
@@ -194,12 +251,22 @@ export default function PasantiaDetalle() {
     }
 
     if (!pasantia || pasantia.estado !== "PUBLICADA") {
-      pushToast("Esta pasantía no está disponible para postulaciones", "error");
+      pushToast("Esta pasantia no esta disponible para postulaciones", "error");
       return;
     }
 
     if (postulacion) {
-      pushToast("Ya tienes una postulación para esta pasantía", "error");
+      pushToast("Ya tienes una postulacion para esta pasantia", "error");
+      return;
+    }
+
+    if (!cvLoading && cvList.length === 0) {
+      pushToast("Necesitas subir un CV en tu perfil antes de postularte", "error");
+      return;
+    }
+
+    if (!selectedCv) {
+      pushToast("Selecciona un CV para postularte", "error");
       return;
     }
 
@@ -208,11 +275,10 @@ export default function PasantiaDetalle() {
       const token = getStoredItem("authToken");
       
       if (!token) {
-        pushToast("No estás autenticado. Por favor inicia sesión", "error");
+        pushToast("No estas autenticado. Por favor inicia sesion", "error");
         return;
       }
 
-      // Get estudiante ID
       const resEstudiante = await fetch(`${API}/estudiantes/perfil?email=${encodeURIComponent(user.email)}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -224,34 +290,30 @@ export default function PasantiaDetalle() {
       const textEstudiante = await resEstudiante.text();
       let estudianteData;
       
-      // The endpoint returns JSON - either a string (error) or an object (Estudiante)
       try {
         estudianteData = JSON.parse(textEstudiante);
       } catch (e) {
-        // If it's not valid JSON, it's likely a plain text error
         throw new Error(textEstudiante || "No se pudo obtener el perfil de estudiante");
       }
       
-      // If the parsed result is a string, it's an error message from the backend
-      if (typeof estudianteData === 'string') {
-        // Check if it's a database error about multiple results
+      if (typeof estudianteData === "string") {
         if (estudianteData.includes("Expected one result") || estudianteData.includes("but found")) {
-          throw new Error("Error en la base de datos: se encontraron múltiples perfiles de estudiante. Por favor contacta al administrador.");
+          throw new Error("Error en la base de datos: se encontraron multiples perfiles de estudiante. Por favor contacta al administrador.");
         }
         throw new Error(estudianteData);
       }
       
-      // Validate that we have the required data (it should be an object with idEstudiante)
-      if (!estudianteData || typeof estudianteData !== 'object' || !estudianteData.idEstudiante) {
+      if (!estudianteData || typeof estudianteData !== "object" || !estudianteData.idEstudiante) {
         throw new Error("Perfil de estudiante no encontrado. Por favor completa tu perfil primero.");
       }
 
-      // Register postulacion
+      const cvToSend = selectedCv ? parseInt(selectedCv, 10) : null;
       const postulacionRequest = {
-        idPasantia: parseInt(id),
+        idPasantia: parseInt(id, 10),
         idEstudiante: estudianteData.idEstudiante,
-        fechaPostulacion: new Date().toISOString().split('T')[0],
-        estado: "BORRADOR"
+        fechaPostulacion: new Date().toISOString().split("T")[0],
+        estado: "BORRADOR",
+        idCv: cvToSend
       };
 
       const resPostulacion = await fetch(`${API}/postulaciones/registrarPostulacion`, {
@@ -269,18 +331,16 @@ export default function PasantiaDetalle() {
       try {
         data = JSON.parse(text);
       } catch (parseError) {
-        throw new Error(text || "Error al registrar la postulación");
+        throw new Error(text || "Error al registrar la postulacion");
       }
 
       if (resPostulacion.ok && data.codigo === 0) {
-        pushToast("Postulación registrada exitosamente", "success");
+        pushToast("Postulacion registrada exitosamente", "success");
         
-        // Use the postulacion from the response directly
         if (data.data) {
           setPostulacion(data.data);
         }
         
-        // Refresh user's postulacion (in case the response doesn't have full data)
         try {
           const resUserPost = await fetch(`${API}/postulaciones/porPasantia/${id}`, {
             headers: {
@@ -304,7 +364,6 @@ export default function PasantiaDetalle() {
           console.error("Error fetching user postulacion:", e);
         }
         
-        // Reload postulaciones list to ensure it's up to date
         try {
           const resPostulaciones = await fetch(`${API}/postulaciones/pasantia/${id}`, {
             headers: {
@@ -320,27 +379,22 @@ export default function PasantiaDetalle() {
               if (dataPost.codigo === 0 && dataPost.data && Array.isArray(dataPost.data)) {
                 setPostulaciones(dataPost.data);
               } else if (dataPost.codigo === 0 && !dataPost.data) {
-                // If no data but successful, set empty array
                 setPostulaciones([]);
               }
             } catch (e) {
               console.error("Error parsing postulaciones list response:", e);
             }
-          } else {
-            // If the request fails, at least add the new postulacion to the list
-            if (data.data) {
-              setPostulaciones(prev => {
-                const exists = prev.some(p => p.idPostulacion === data.data.idPostulacion);
-                if (!exists) {
-                  return [...prev, data.data];
-                }
-                return prev;
-              });
-            }
+          } else if (data.data) {
+            setPostulaciones(prev => {
+              const exists = prev.some(p => p.idPostulacion === data.data.idPostulacion);
+              if (!exists) {
+                return [...prev, data.data];
+              }
+              return prev;
+            });
           }
         } catch (e) {
           console.error("Error fetching postulaciones list:", e);
-          // If the request fails, at least add the new postulacion to the list
           if (data.data) {
             setPostulaciones(prev => {
               const exists = prev.some(p => p.idPostulacion === data.data.idPostulacion);
@@ -352,15 +406,16 @@ export default function PasantiaDetalle() {
           }
         }
       } else {
-        throw new Error(data?.mensaje || "Error al registrar la postulación");
+        throw new Error(data?.mensaje || "Error al registrar la postulacion");
       }
     } catch (err) {
-      console.error("Error al registrar postulación:", err);
-      pushToast(err.message || "Error al registrar la postulación", "error");
+      console.error("Error al registrar postulacion:", err);
+      pushToast(err.message || "Error al registrar la postulacion", "error");
     } finally {
       setRegistering(false);
     }
-  }, [user, pasantia, postulacion, id, pushToast]);
+  }, [user, pasantia, postulacion, id, selectedCv, cvList, cvLoading, pushToast]);
+
 
   if (loading) {
     return (
@@ -391,12 +446,12 @@ export default function PasantiaDetalle() {
     <section className="pasantias-page">
       <div className="container">
         <header style={{ margin: "28px 0 2rem" }}>
-          <button 
-            className="back-link" 
+          <button
+            className="back-link"
             onClick={() => navigate("/pasantias")}
             style={{ marginBottom: "1rem" }}
           >
-            <span aria-hidden="true">←</span> Volver
+            <span aria-hidden="true">&larr;</span> Volver a Pasantia
           </button>
           <h1>{pasantia.titulo}</h1>
           <p className="muted">
@@ -616,10 +671,39 @@ export default function PasantiaDetalle() {
               boxShadow: "0 12px 32px rgba(0,0,0,0.18)"
             }}
           >
-            <h3 style={{ marginTop: 0, marginBottom: "0.75rem" }}>Confirmar postulación</h3>
+            <h3 style={{ marginTop: 0, marginBottom: "0.75rem" }}>Confirmar postulacion</h3>
             <p style={{ marginBottom: "1.25rem", color: "#475569" }}>
-              Vas a enviar tu postulación a esta pasantía. ¿Deseas continuar?
+              Vas a enviar tu postulacion a esta pasantia. Deseas continuar?
             </p>
+
+            {user?.rol === "ESTUDIANTE" && (
+              <div style={{ marginBottom: "1rem" }}>
+                <label htmlFor="cvSelect" style={{ display: "block", fontWeight: 600, marginBottom: "0.4rem" }}>
+                  Selecciona un CV para postularte
+                </label>
+                {cvLoading ? (
+                  <p style={{ color: "#64748b", fontSize: "0.9rem" }}>Cargando CVs...</p>
+                ) : cvList.length === 0 ? (
+                  <p style={{ color: "#dc2626", fontSize: "0.9rem" }}>
+                    No tienes CVs cargados. Sube uno desde tu perfil antes de postularte.
+                  </p>
+                ) : (
+                  <select
+                    id="cvSelect"
+                    value={selectedCv}
+                    onChange={(e) => setSelectedCv(e.target.value)}
+                    style={{ width: "100%", padding: "0.65rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  >
+                    {cvList.map((cv) => (
+                      <option key={cv.idCv} value={cv.idCv}>
+                        {cv.nombreArchivo || `CV ${cv.idCv}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", flexWrap: "wrap" }}>
               <button
                 className="btn btn-outline"
@@ -634,7 +718,10 @@ export default function PasantiaDetalle() {
                   setConfirmOpen(false);
                   handleConfirmarPostulacion();
                 }}
-                disabled={registering}
+                disabled={
+                  registering ||
+                  (user?.rol === "ESTUDIANTE" && (cvLoading || cvList.length === 0 || !selectedCv))
+                }
               >
                 {registering ? "Enviando..." : "Confirmar"}
               </button>

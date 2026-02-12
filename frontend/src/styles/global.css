@@ -6,6 +6,12 @@
   --muted:#6b7280;
   --border:#e5e7eb;
   --radius:14px;
+  --page-bg:#f8fafc;
+  --card-bg:#fff;
+  --card-soft:#f8fafc;
+  --shadow-elevated:0 20px 45px rgba(34, 100, 178, 0.15);
+  --avatar-bg:rgba(40, 111, 169, 0.12);
+  --avatar-text:#286FA9;
 }
 
 *{box-sizing:border-box}
@@ -14,7 +20,8 @@ body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
   color:var(--text);
-  background:#fff;
+  background:var(--page-bg);
+  transition: background-color .25s ease, color .25s ease;
 }
 .app{
   min-height:100%; display:flex; flex-direction:column;

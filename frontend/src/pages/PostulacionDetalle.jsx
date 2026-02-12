@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/pasantias.css";
 
@@ -34,7 +34,7 @@ export default function PostulacionDetalle() {
               Solo administradores o empresas pueden ver las postulaciones.
             </p>
             <button className="btn btn-primary" onClick={() => navigate("/pasantias")}>
-              Volver a pasantías
+              Volver a pasantÃ­as
             </button>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function PostulacionDetalle() {
           <div className="emp-alert error">
             {error}
             <button className="link" onClick={() => navigate("/pasantias")}>
-              Volver a pasantías
+              Volver a pasantÃ­as
             </button>
           </div>
         </div>
@@ -180,16 +180,16 @@ export default function PostulacionDetalle() {
       <div className="container">
         <header style={{ margin: "28px 0 2rem" }}>
           <button 
-            className="btn btn-ghost" 
+            className="back-link" 
             onClick={() => navigate(`/pasantias/${pasantiaId}`)}
             style={{ marginBottom: "1rem" }}
           >
-            ← Volver a Pasantía
+            <span aria-hidden="true">&#8592;</span> Volver a Pasantia
           </button>
           <h1>Postulaciones</h1>
           {pasantia && (
             <p className="muted">
-              {pasantia.titulo} · {postulaciones.length} {postulaciones.length === 1 ? "postulación" : "postulaciones"}
+              {pasantia.titulo} Â· {postulaciones.length} {postulaciones.length === 1 ? "postulaciÃ³n" : "postulaciones"}
             </p>
           )}
         </header>
@@ -206,7 +206,7 @@ export default function PostulacionDetalle() {
             </div>
             {pasantia?.estado && (
               <div className="summary-card">
-                <div className="summary-label">Estado de pasantía</div>
+                <div className="summary-label">Estado de pasantÃ­a</div>
                 <span className={getEstadoBadgeClass(pasantia.estado)}>{pasantia.estado}</span>
               </div>
             )}
@@ -238,7 +238,7 @@ export default function PostulacionDetalle() {
           <div className="job-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
             <div className="pasantia-head">
               <div>
-                <p className="muted" style={{ marginBottom: "6px" }}>Pasantía</p>
+                <p className="muted" style={{ marginBottom: "6px" }}>PasantÃ­a</p>
                 <h2 style={{ fontSize: "1.1rem", margin: 0 }}>{pasantia.titulo}</h2>
               </div>
               {pasantia.estado && (
@@ -272,7 +272,7 @@ export default function PostulacionDetalle() {
           <div className="job-card" style={{ padding: "2rem", textAlign: "center" }}>
             <p style={{ marginBottom: "0.3rem" }}>
               {postulaciones.length === 0
-                ? "No hay postulaciones para esta pasantía."
+                ? "No hay postulaciones para esta pasantÃ­a."
                 : "No se encontraron postulaciones con ese filtro."}
             </p>
             {postulaciones.length > 0 && (
@@ -290,7 +290,7 @@ export default function PostulacionDetalle() {
                     <h3 className="postulacion-card__title">
                       {postulacion.nombreEstudiante} {postulacion.apellidoEstudiante}
                     </h3>
-                    <p className="muted">Postulación #{postulacion.idPostulacion}</p>
+                    <p className="muted">PostulaciÃ³n #{postulacion.idPostulacion}</p>
                   </div>
                   <span className={getEstadoBadgeClass(postulacion.estado)}>
                     {postulacion.estado || "Sin estado"}
@@ -299,9 +299,9 @@ export default function PostulacionDetalle() {
 
                 <div className="postulacion-card__grid">
                   <section>
-                    <h4>Datos de la postulación</h4>
+                    <h4>Datos de la postulaciÃ³n</h4>
                     <dl>
-                      <dt>Fecha de postulación</dt>
+                      <dt>Fecha de postulaciÃ³n</dt>
                       <dd>{formatDate(postulacion.fechaPostulacion)}</dd>
                       {postulacion.fechaInicioContrato && (
                         <>
@@ -311,7 +311,7 @@ export default function PostulacionDetalle() {
                       )}
                       {postulacion.duracionMeses && (
                         <>
-                          <dt>Duración</dt>
+                          <dt>DuraciÃ³n</dt>
                           <dd>{postulacion.duracionMeses} meses</dd>
                         </>
                       )}
@@ -335,13 +335,13 @@ export default function PostulacionDetalle() {
                       )}
                       {postulacion.telefonoEstudiante && (
                         <>
-                          <dt>Teléfono celular</dt>
+                          <dt>TelÃ©fono celular</dt>
                           <dd><a href={`tel:${postulacion.telefonoEstudiante}`}>{postulacion.telefonoEstudiante}</a></dd>
                         </>
                       )}
                       {postulacion.telefonoFijoEstudiante && (
                         <>
-                          <dt>Teléfono fijo</dt>
+                          <dt>TelÃ©fono fijo</dt>
                           <dd>{postulacion.telefonoFijoEstudiante}</dd>
                         </>
                       )}
@@ -365,7 +365,7 @@ export default function PostulacionDetalle() {
                       )}
                       {(postulacion.calleEstudiante || postulacion.nroCalleEstudiante) && (
                         <>
-                          <dt>Dirección</dt>
+                          <dt>DirecciÃ³n</dt>
                           <dd>
                             {postulacion.calleEstudiante} {postulacion.nroCalleEstudiante}
                             {postulacion.barrioEstudiante && `, ${postulacion.barrioEstudiante}`}

@@ -213,6 +213,54 @@
   margin: 0 auto 24px;
 }
 
+/* CV list */
+.cv-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cv-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: #fff;
+}
+
+.cv-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.photo-actions .btn-secondary,
+.photo-actions .btn-outline {
+  flex: 1 1 140px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .photo-actions .btn-secondary,
+  .photo-actions .btn-outline {
+    flex-basis: 100%;
+  }
+}
+
 .success-card h2 {
   margin: 0 0 12px 0;
   color: #0f172a;

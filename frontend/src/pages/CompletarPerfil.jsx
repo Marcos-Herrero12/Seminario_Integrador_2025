@@ -10,8 +10,17 @@ function getStoredItem(key) {
   return sessionStorage.getItem(key);
 }
 
+async function safeJson(res) {
+  try {
+    return await res.json();
+  } catch (err) {
+    return null;
+  }
+}
+
 export default function CompletarPerfil() {
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
   const [form, setForm] = useState({
     especialidad: "",
     nroLegajo: "",
@@ -27,6 +36,12 @@ export default function CompletarPerfil() {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [studentId, setStudentId] = useState(null);
+  const [cvList, setCvList] = useState([]);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvError, setCvError] = useState("");
+  const [cvUploading, setCvUploading] = useState(false);
 
   // Verificar autenticación
   useEffect(() => {
@@ -39,10 +54,129 @@ export default function CompletarPerfil() {
     }
     
     const userInfo = JSON.parse(userInfoStr);
+    setUserInfo(userInfo);
     if (userInfo.rol !== "ESTUDIANTE") {
       navigate("/", { replace: true });
     }
   }, [navigate]);
+
+  // Foto almacenada localmente
+  useEffect(() => {
+    if (userInfo?.email) {
+      const stored = localStorage.getItem(`profilePhoto:${userInfo.email}`);
+      if (stored) setPhoto(stored);
+    }
+  }, [userInfo]);
+
+  // Cargar id estudiante y CVs
+  useEffect(() => {
+    async function loadCvData() {
+      if (!userInfo) return;
+      const token = getStoredItem("authToken");
+      if (!token) return;
+      try {
+        setCvLoading(true);
+        setCvError("");
+        const resEst = await fetch(`${API}/estudiantes/perfil?email=${encodeURIComponent(userInfo.email)}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json;charset=UTF-8" }
+        });
+        const dataEst = await safeJson(resEst);
+        const idEst = dataEst?.idEstudiante || dataEst?.id;
+        setStudentId(idEst || null);
+        if (!idEst) throw new Error("No se pudo obtener el id del estudiante");
+
+        const resCv = await fetch(`${API}/cvs/getCV?idEstudiante=${idEst}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json;charset=UTF-8" }
+        });
+        if (!resCv.ok) throw new Error(`HTTP ${resCv.status}`);
+        const cvs = await safeJson(resCv);
+        setCvList(Array.isArray(cvs) ? cvs : []);
+      } catch (err) {
+        setCvError(err.message || "No se pudieron cargar los CVs");
+        setCvList([]);
+      } finally {
+        setCvLoading(false);
+      }
+    }
+    loadCvData();
+  }, [userInfo]);
+
+  const handlePhotoChange = (ev) => {
+    const file = ev.target.files?.[0];
+    if (!file || !userInfo?.email) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setPhoto(dataUrl);
+      localStorage.setItem(`profilePhoto:${userInfo.email}`, dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    if (!userInfo?.email) return;
+    setPhoto(null);
+    localStorage.removeItem(`profilePhoto:${userInfo.email}`);
+  };
+
+  const handleUploadCv = async (file, inputRef) => {
+    if (!file || !studentId) {
+      setCvError("Primero completa los datos básicos para obtener tu ID de estudiante");
+      if (inputRef) inputRef.value = "";
+      return;
+    }
+    const token = getStoredItem("authToken");
+    if (!token) {
+      setCvError("Necesitas iniciar sesión para subir un CV");
+      if (inputRef) inputRef.value = "";
+      return;
+    }
+    try {
+      setCvUploading(true);
+      setCvError("");
+      const form = new FormData();
+      form.append("file", file);
+      form.append("idEstudiante", studentId);
+      const resUpload = await fetch(`${API}/cvs/subirCV`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form
+      });
+      const dataUpload = await safeJson(resUpload);
+      if (!resUpload.ok || dataUpload?.code === -1) {
+        throw new Error(dataUpload?.message || `HTTP ${resUpload.status}`);
+      }
+      const resCv = await fetch(`${API}/cvs/getCV?idEstudiante=${studentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const cvs = await safeJson(resCv);
+      setCvList(Array.isArray(cvs) ? cvs : []);
+    } catch (err) {
+      setCvError(err.message || "Error al subir el CV");
+    } finally {
+      setCvUploading(false);
+      if (inputRef) inputRef.value = "";
+    }
+  };
+
+  const handleDeleteCv = async (cvId) => {
+    const token = getStoredItem("authToken");
+    if (!token || !cvId) return;
+    if (!confirm("¿Eliminar este CV?")) return;
+    try {
+      const res = await fetch(`${API}/cvs/eliminarCV/${cvId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.code === -1) {
+        throw new Error(data.message || `HTTP ${res.status}`);
+      }
+      setCvList((prev) => prev.filter((c) => c.idCv !== cvId));
+    } catch (err) {
+      setCvError(err.message || "No se pudo eliminar el CV");
+    }
+  };
 
   function validate(values) {
     const e = {};
@@ -305,6 +439,92 @@ export default function CompletarPerfil() {
                   disabled={loading}
                 />
               </div>
+            </div>
+
+            <div className="form-section">
+              <h3 className="section-title">Foto de perfil</h3>
+              <div className="perfil-photo-wrapper" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div className="perfil-photo" style={{ width: "72px", height: "72px", borderRadius: "50%", overflow: "hidden", background: "#f3f4f6", display: "grid", placeItems: "center", fontWeight: 700, color: "#475569" }}>
+                  {photo ? <img src={photo} alt="Foto de perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : (userInfo?.username || "?")?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+                <div className="photo-actions">
+                  <input
+                    id="profile-photo-input"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handlePhotoChange}
+                  />
+                  <button type="button" className="btn-secondary" onClick={() => document.getElementById("profile-photo-input")?.click()}>
+                    Subir foto
+                  </button>
+                  {photo && (
+                    <button type="button" className="btn-outline" onClick={handleRemovePhoto}>
+                      Quitar foto
+                    </button>
+                  )}
+                </div>
+              </div>
+              <p className="perfil-subtitle" style={{ marginTop: "8px" }}>Usa una imagen cuadrada para que se vea mejor en el perfil.</p>
+            </div>
+
+            <div className="form-section">
+              <h3 className="section-title">Currículum (PDF)</h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
+                <input
+                  id="cv-file-input"
+                  type="file"
+                  accept="application/pdf"
+                  style={{ display: "none" }}
+                  onChange={(e) => handleUploadCv(e.target.files?.[0], e.target)}
+                />
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={() => document.getElementById("cv-file-input")?.click()}
+                  disabled={cvUploading}
+                >
+                  {cvUploading ? "Subiendo..." : "Subir CV"}
+                </button>
+                {cvError && <span className="error" style={{ marginLeft: "8px" }}>{cvError}</span>}
+              </div>
+              {cvLoading ? (
+                <p className="muted">Cargando CVs...</p>
+              ) : cvList.length === 0 ? (
+                <p className="muted">Todavía no subiste CVs. Puedes agregar varios y elegirlos al postular.</p>
+              ) : (
+                <ul className="cv-list">
+                  {cvList.map((cv) => (
+                    <li key={cv.idCv} className="cv-item">
+                      <div>
+                        <strong>{cv.nombreArchivo || `CV ${cv.idCv}`}</strong>
+                        {cv.fechaSubida && (
+                          <span className="muted" style={{ marginLeft: "8px", fontSize: "12px" }}>
+                            {new Date(cv.fechaSubida).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="cv-actions">
+                        <a
+                          className="btn btn-outline"
+                          href={`${API}/cvs/descargarCV/${cv.idCv}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Descargar
+                        </a>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteCv(cv.idCv)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className="form-actions">

@@ -22,7 +22,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/cvs")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"},
+@CrossOrigin(
+        origins = {
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:4173",
+                "http://127.0.0.1:4173"
+        },
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS},
         allowedHeaders = "*")
 public class CvController {
