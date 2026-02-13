@@ -25,7 +25,7 @@ public interface EmpresaMapper {
 	@Options(useGeneratedKeys = true, keyProperty = "idEmpresa")
 	void insert(Empresa empresa);
 
-	@Update("UPDATE Empresa SET nombre=#{nombre}, ciudad=#{ciudad}, calle=#{calle}, nro_calle=#{nroCalle}, piso=#{piso}, departamento=#{departamento}, barrio=#{barrio}, email=#{email}, cuit=#{cuit}, razon_social=#{razonSocial}, id_usuario=#{idUsuario}, activo=#{activo} WHERE id_empresa=#{idEmpresa}")
+	@Update("UPDATE Empresa SET nombre=#{nombre}, ciudad=#{ciudad}, calle=#{calle}, nro_calle=#{nroCalle}, piso=#{piso}, departamento=#{departamento}, barrio=#{barrio}, email=#{email}, cuit=#{cuit}, razon_social=#{razonSocial}, activo=#{activo} WHERE id_empresa=#{idEmpresa}")
 	void update(Empresa empresa);
 
 	@Delete("DELETE FROM Empresa WHERE id_empresa = #{id}")

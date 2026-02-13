@@ -35,7 +35,8 @@ public interface PasantiaMapper {
             p.otros_requisitos AS otrosRequisitos,
             p.beneficios,
             p.id_empresa AS idEmpresa,
-            e.nombre AS nombreEmpresa
+            e.nombre AS nombreEmpresa,
+            e.id_usuario AS idUsuarioEmpresa
         FROM Pasantia p
         LEFT JOIN Empresa e ON p.id_empresa = e.id_empresa
         WHERE p.id_pasantia = #{id}
@@ -52,7 +53,9 @@ public interface PasantiaMapper {
         @Result(property = "otrosRequisitos", column = "otrosRequisitos"),
         @Result(property = "beneficios", column = "beneficios"),
         @Result(property = "empresa.idEmpresa", column = "idEmpresa"),
-        @Result(property = "empresa.nombre", column = "nombreEmpresa")
+        @Result(property = "empresa.nombre", column = "nombreEmpresa"),
+        @Result(property = "empresa.idUsuario", column = "idUsuarioEmpresa")
+
     })
     Optional<Pasantia> findById(@Param("id") Integer id);
 

@@ -423,5 +423,46 @@ public interface PostulacionMapper {
             @Result(property = "provinciaEstudiante", column = "provinciaEstudiante")
     })
     List<PostulacionResponseDTO> findAllByPasantiaId(@Param("pasantiaId") Integer pasantiaId);
-    }
 
+    /**
+     * Buscar postulaciones por empresa.
+     */
+    @Select("""
+        SELECT 
+            po.id_postulacion AS idPostulacion,
+            po.fecha_postulacion AS fechaPostulacion,
+            po.fecha_inicio_contrato AS fechaInicioContrato,
+            po.duracion_meses AS duracionMeses,
+            po.estado,
+            po.observaciones AS observaciones,
+            po.fecha_creacion AS fechaCreacion,
+
+            pa.id_pasantia AS idPasantia,
+            pa.titulo AS tituloPasantia,
+            pa.modalidad AS modalidad,
+            em.nombre AS nombreEmpresa,
+
+            e.id_estudiante AS idEstudiante,
+            e.nombre AS nombreEstudiante,
+            e.apellido AS apellidoEstudiante,
+            e.email AS emailEstudiante,
+            e.dni AS dniEstudiante,
+            e.tel_celular AS telefonoEstudiante,
+            e.tel_fijo AS telefonoFijoEstudiante,
+            e.nro_legajo AS legajoEstudiante,
+            e.especialidad AS especialidadEstudiante,
+            e.calle AS calleEstudiante,
+            e.nro_calle AS nroCalleEstudiante,
+            e.barrio AS barrioEstudiante,
+            e.localidad AS localidadEstudiante,
+            e.provincia AS provinciaEstudiante
+        FROM Postulacion po
+        LEFT JOIN Estudiante e ON po.id_estudiante = e.id_estudiante
+        LEFT JOIN Pasantia pa ON po.id_pasantia = pa.id_pasantia
+        LEFT JOIN Empresa em ON pa.id_empresa = em.id_empresa
+        WHERE pa.id_empresa = #{empresaId}
+        ORDER BY po.fecha_postulacion DESC
+    """)
+    @ResultMap("postulacionPasantiaResult")
+    List<PostulacionResponseDTO> findByEmpresaId(@Param("empresaId") Integer empresaId);
+}

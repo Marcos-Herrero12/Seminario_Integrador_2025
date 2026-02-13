@@ -183,7 +183,25 @@ public class PostulacionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-    
 
+    @GetMapping("/postulacionesMiEmpresa")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyRole('EMPRESA')")
+    public ResponseEntity<Map<String, Object>> obtenerPostulacionesMiEmpresa() {
+        try {
+            List<PostulacionResponseDTO> postulaciones = postulacionService.obtenerPostulacionesMiEmpresa();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("codigo", 0);
+            response.put("mensaje", "Postulaciones encontradas");
+            response.put("data", postulaciones);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("codigo", -1);
+            errorResponse.put("mensaje", "Error al obtener postulaciones: " + e.getMessage());
+            errorResponse.put("data", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }
-

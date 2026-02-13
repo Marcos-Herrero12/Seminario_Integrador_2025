@@ -5,6 +5,8 @@ import com.seminario.pasantias.dto.response.*;
 import com.seminario.pasantias.entity.*;
 import com.seminario.pasantias.persistence.*;
 import com.seminario.pasantias.util.PasantiaMapperUtil;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ public class PasantiaService {
     private final CarreraMapper carreraMapper;
     private final PostulacionMapper postulacionMapper;
     private final PasantiaMapperUtil mapperUtil;
+    private final UsuarioService usuarioService;
 
     @Autowired
     public PasantiaService(
@@ -30,12 +33,14 @@ public class PasantiaService {
             EmpresaMapper empresaMapper,
             CarreraMapper carreraMapper,
             PostulacionMapper postulacionMapper,
-            PasantiaMapperUtil mapperUtil) {
+            PasantiaMapperUtil mapperUtil,
+            UsuarioService usuarioService) {
         this.pasantiaMapper = pasantiaMapper;
         this.empresaMapper = empresaMapper;
         this.carreraMapper = carreraMapper;
         this.postulacionMapper = postulacionMapper;
         this.mapperUtil = mapperUtil;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -298,5 +303,34 @@ public class PasantiaService {
                         "No se puede cambiar el estado de una pasantía en estado " + estadoActual
                 );
         }
+    }
+
+    /**
+     * Obtener pasantías de la empresa autenticada
+     */
+    @Transactional(readOnly = true)
+    public List<PasantiaResponseDTO> obtenerMisPasantias() {
+        // Recuperar usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        // Buscar el usuario en BD
+        Optional<Usuario> usuarioOpt = usuarioService.findByUsername(username);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        Usuario usuario = usuarioOpt.get();
+
+        // Buscar la empresa asociada al usuario
+        Empresa empresa = empresaMapper.findByIdUsuario(usuario.getIdUsuario());
+        if (empresa == null) {
+            throw new RuntimeException("Empresa no encontrada para el usuario");
+        }
+
+        // Buscar pasantías de la empresa
+        List<Pasantia> pasantias = pasantiaMapper.findByEmpresaId(empresa.getIdEmpresa());
+        return pasantias.stream()
+                .map(mapperUtil::entityToResponseDto)
+                .collect(Collectors.toList());
     }
 }

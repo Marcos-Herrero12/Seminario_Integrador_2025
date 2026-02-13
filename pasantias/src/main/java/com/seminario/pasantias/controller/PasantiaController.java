@@ -369,5 +369,25 @@ public class PasantiaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-}
 
+    @GetMapping("/misPasantias")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyRole('EMPRESA')")
+    public ResponseEntity<Map<String, Object>> obtenerMisPasantias() {
+        try {
+            List<PasantiaResponseDTO> pasantias = pasantiaService.obtenerMisPasantias();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("codigo", 0);
+            response.put("mensaje", "Pasantías encontradas");
+            response.put("data", pasantias);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("codigo", -1);
+            errorResponse.put("mensaje", "Error al obtener pasantías: " + e.getMessage());
+            errorResponse.put("data", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+}

@@ -119,9 +119,9 @@ public class EmpresaController {
 		
 		try {
 			Empresa empresa = new Empresa(null, request.getNombre(), request.getCiudad(), 
-				request.getCalle(), request.getNroCalle(), request.getPiso(), 
+				request.getCalle(), request.getNroCalle(), request.getPiso(),
 				request.getDepartamento(), request.getBarrio(), request.getEmail(), 
-				request.getCuit(), request.getRazonSocial(), request.getContacto());
+				request.getCuit(), request.getRazonSocial(), request.getContacto(),null);
 			empresaService.createEmpresaWithContactos(empresa);
 			response.setCode(0);
 			response.setMessage(null);
@@ -137,7 +137,7 @@ public class EmpresaController {
 		Empresa empresa = new Empresa(null, request.getNombre(), request.getCiudad(), 
 			request.getCalle(), request.getNroCalle(), request.getPiso(), 
 			request.getDepartamento(), request.getBarrio(), request.getEmail(),
-			request.getCuit(), request.getRazonSocial(), request.getContacto());
+			request.getCuit(), request.getRazonSocial(), request.getContacto(),null);
 		empresaService.createEmpresa(empresa);
 	}
 
@@ -146,7 +146,7 @@ public class EmpresaController {
 		Empresa empresa = new Empresa(id, request.getNombre(), request.getCiudad(), 
 			request.getCalle(), request.getNroCalle(), request.getPiso(), 
 			request.getDepartamento(), request.getBarrio(), request.getEmail(), 
-			request.getCuit(), request.getRazonSocial(), request.getContacto());
+			request.getCuit(), request.getRazonSocial(), request.getContacto(), null);
 		empresaService.updateEmpresa(empresa);
 	}
 

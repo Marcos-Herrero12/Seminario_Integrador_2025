@@ -6,6 +6,7 @@ import com.seminario.pasantias.entity.*;
 import com.seminario.pasantias.persistence.PostulacionMapper;
 import com.seminario.pasantias.persistence.EstudianteMapper;
 import com.seminario.pasantias.persistence.PasantiaMapper;
+import com.seminario.pasantias.persistence.EmpresaMapper;
 import com.seminario.pasantias.util.PostulacionMapperUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,20 +26,27 @@ public class PostulacionService {
     private final PostulacionMapper postulacionMapper;
     private final EstudianteMapper estudianteMapper;
     private final PasantiaMapper pasantiaMapper;
+    private final EmpresaMapper empresaMapper;
     private final PostulacionMapperUtil mapperUtil;
     private final UsuarioService usuarioService;
+    private final NotificacionService notificacionService;
 
     @Autowired
     public PostulacionService(
             PostulacionMapper postulacionMapper,
             EstudianteMapper estudianteMapper,
             PasantiaMapper pasantiaMapper,
-            PostulacionMapperUtil mapperUtil, UsuarioService usuarioService) {
+            EmpresaMapper empresaMapper,
+            PostulacionMapperUtil mapperUtil, 
+            UsuarioService usuarioService,
+            NotificacionService notificacionService) {
         this.postulacionMapper = postulacionMapper;
         this.estudianteMapper = estudianteMapper;
         this.pasantiaMapper = pasantiaMapper;
+        this.empresaMapper = empresaMapper;
         this.mapperUtil = mapperUtil;
         this.usuarioService = usuarioService;
+        this.notificacionService = notificacionService;
     }
 
     /**
@@ -87,9 +95,15 @@ public class PostulacionService {
 
         // Insertar en BD
         postulacionMapper.insert(postulacion);
+        System.out.println("Empresa: " + pasantia.getEmpresa()+ " id-usuario : " + pasantia.getEmpresa().getIdUsuario());
+        // Notificar a la empresa
+        if (pasantia.getEmpresa() != null && pasantia.getEmpresa().getIdUsuario() != null) {
+            String mensaje = "Nueva postulación recibida para la pasantía: " + pasantia.getTitulo();
+            notificacionService.crearNotificacion(pasantia.getEmpresa().getIdUsuario(), mensaje);
+        }
 
         // Retornar con relaciones cargadas
-        return mapperUtil.entityToResponseDto(
+            return mapperUtil.entityToResponseDto(
                 postulacionMapper.findByIdWithRelations(postulacion.getIdPostulacion()).orElseThrow()
         );
     }
@@ -122,7 +136,7 @@ public class PostulacionService {
      * Cambiar el estado de una postulación
      */
     public PostulacionResponseDTO actualizarEstado(Integer id, ActualizarEstadoPostulacionDTO request) {
-        Postulacion postulacion = postulacionMapper.findById(id)
+        Postulacion postulacion = postulacionMapper.findByIdWithRelations(id)
                 .orElseThrow(() -> new IllegalArgumentException("Postulación no encontrada con ID: " + id));
 
         // Validar transición de estado
@@ -139,6 +153,13 @@ public class PostulacionService {
 
         postulacion.setEstado(request.getEstado());
         postulacionMapper.update(postulacion);
+
+        // Notificar al estudiante sobre el cambio de estado
+        if (postulacion.getEstudiante() != null && postulacion.getEstudiante().getIdUsuario() != null) {
+            String mensaje = "El estado de tu postulación para " + postulacion.getPasantia().getTitulo() + 
+                             " ha cambiado a: " + request.getEstado();
+            notificacionService.crearNotificacion(postulacion.getEstudiante().getIdUsuario(), mensaje);
+        }
 
         return mapperUtil.entityToResponseDto(
                 postulacionMapper.findByIdWithRelations(id).orElseThrow()
@@ -372,5 +393,41 @@ public class PostulacionService {
         );
 
         return Optional.of(dto);
+    }
+
+    /**
+     * Obtener postulaciones de la empresa autenticada
+     */
+    @Transactional(readOnly = true)
+    public List<PostulacionResponseDTO> obtenerPostulacionesMiEmpresa() {
+        // Recuperar usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        // Buscar el usuario en BD
+        Optional<Usuario> usuarioOpt = usuarioService.findByUsername(username);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        Usuario usuario = usuarioOpt.get();
+
+        // Buscar la empresa asociada al usuario
+        Empresa empresa = empresaMapper.findByIdUsuario(usuario.getIdUsuario());
+        if (empresa == null) {
+            throw new RuntimeException("Empresa no encontrada para el usuario");
+        }
+
+        // Buscar postulaciones de las pasantías de la empresa
+        List<PostulacionResponseDTO> postulaciones = postulacionMapper.findByEmpresaId(empresa.getIdEmpresa());
+
+        // Calcular campos adicionales
+        postulaciones.forEach(dto -> {
+            dto.setEsEditable(
+                    dto.getEstado() == EstadoPostulacion.BORRADOR ||
+                            dto.getEstado() == EstadoPostulacion.PENDIENTE_APROBACION
+            );
+        });
+
+        return postulaciones;
     }
 }

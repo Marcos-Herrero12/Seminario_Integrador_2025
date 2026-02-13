@@ -187,6 +187,18 @@ CREATE TABLE Postulacion (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Estructura de la tabla `Notificacion`
+--
+CREATE TABLE Notificacion (
+    id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+    mensaje TEXT NOT NULL,
+    fecha DATETIME NOT NULL,
+    leida BOOLEAN DEFAULT FALSE,
+    id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
+);
+
 
 --
 -- Inserta datos de ejemplo para Rol
@@ -247,7 +259,7 @@ INSERT INTO Carrera (nombre) VALUES
 INSERT INTO Empresa (nombre, ciudad, calle, nro_calle, piso, departamento, barrio, email, cuit, razon_social, id_usuario) VALUES
 ('BIOFARMA S.A', 'Córdoba', 'Bv. de los Polacos', 6446, NULL, NULL, 'Los Boulevares', 'rrhh@biofarmaweb.com.ar','30-76543210-3', 'BIOFARMA S.A.', 4),
 ('INDACOR S.A.', 'JUAREZ CELMAN', 'Ruta 9 norte km 721', NULL, NULL, NULL, NULL, 'aracelipenaflor@pollosindacor.com.ar', '33-12345678-9', 'INDACOR S.A.', 6),
-('Soc. de Beneficencia Hospital Italiano', 'Córdoba', 'Roma', 577, NULL, NULL, NULL, 'seleccion@hospital-italiano.org.ar', NULL, 'Soc. de Beneficencia Hospital Italiano', 5),
+('Soc. de Beneficencia Hospital Italiano', 'Córdoba', 'Roma', 577, NULL, NULL, NULL, 'seleccion@hospital-italiano.org.ar', NULL, 'Soc. de Beneficencia Hospital Italiano', 3),
 ('SOWIC S.A', 'Córdoba', 'Av. La Voz del Interior', 7000, NULL, NULL, 'Torre Miragolf Oeste', 'seleccion@sowic.com.ar', NULL, 'SOWIC S.A', 7),
 ('LOS MOLINOS SRL (ELECTROALEM)', 'Córdoba Capital', 'RN19 Ex Km 12', NULL, NULL, NULL, 'Malvinas Argentinas', 'rrhhelectroalem@gmail.com', NULL, 'LOS MOLINOS SRL', 8),
 ('HARRIAGUE Y ASOCIADOS SRL (Avenga)', 'Córdoba', NULL, NULL, NULL, NULL, 'Capitalinas', 'natalia.barrionuevo@avenga.com', NULL, 'HARRIAGUE Y ASOCIADOS SRL', 9),
