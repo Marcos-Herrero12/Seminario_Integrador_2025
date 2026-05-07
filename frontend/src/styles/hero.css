@@ -57,7 +57,7 @@
 
 /* ---- BOTTOM DOCK ---- */
 .bottom-dock{
-  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  position:fixed; left:0; right:0; bottom:var(--bottom-dock-offset,0); z-index:50;
   pointer-events:none; 
   padding:0 10px 8px;
 }

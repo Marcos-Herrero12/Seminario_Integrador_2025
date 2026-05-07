@@ -21,6 +21,9 @@ import PasantiaDetalle from "./pages/PasantiaDetalle.jsx";
 import PasantiasPublicadas from "./pages/PasantiasPublicadas.jsx";
 import PostulacionDetalle from "./pages/PostulacionDetalle.jsx";
 import "./styles/admin-layout.css";
+import Footer from "./components/Footer.jsx";
+import Privacidad from "./pages/Privacidad.jsx";
+import Condiciones from "./pages/Condiciones.jsx";
 
 function getStoredItem(key) {
   const persisted = localStorage.getItem(key);
@@ -91,6 +94,8 @@ export default function App() {
       <Route path="/perfil" element={<Perfil />} />
       <Route path="/perfil/completar" element={<CompletarPerfil />} />
       <Route path="/perfil/modificar" element={<ModificarPerfil />} />
+      <Route path="/privacidad" element={<Privacidad />} />
+      <Route path="/condiciones" element={<Condiciones />} />
     </Routes>
   ), []);
 
@@ -100,11 +105,13 @@ export default function App() {
         <div className="admin-layout">
           <AdminSidebar user={user} />
           <main className="main admin-main">{routes}</main>
+          <Footer />
         </div>
       ) : (
         <>
           <Navbar />
           <main className="main">{routes}</main>
+          <Footer />
         </>
       )}
     </div>
