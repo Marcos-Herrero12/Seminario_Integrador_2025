@@ -54,7 +54,7 @@
 
   /* closed: move below viewport taking footer offset into account */
   transform: translateY(calc(100% + var(--bottom-dock-offset, 0px)));
-  transition: transform .35s ease, visibility .35s;
+  transition: transform .35s ease, opacity .35s ease, visibility 0s linear .35s;
   pointer-events:none;
   visibility:hidden;
   opacity:0;
@@ -64,6 +64,7 @@
   pointer-events:auto;
   visibility:visible;
   opacity:1;
+  transition: transform .35s ease, opacity .35s ease, visibility 0s linear 0s;
 }
 
 .search-panel.bottom .search-inner{

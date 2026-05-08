@@ -102,11 +102,13 @@ export default function App() {
   return (
     <div className="app">
       {isAdmin ? (
-        <div className="admin-layout">
-          <AdminSidebar user={user} />
-          <main className="main admin-main">{routes}</main>
+        <>
+          <div className="admin-layout">
+            <AdminSidebar user={user} />
+            <main className="main admin-main">{routes}</main>
+          </div>
           <Footer />
-        </div>
+        </>
       ) : (
         <>
           <Navbar />
